@@ -2,10 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SideMenuWidget extends StatelessWidget {
-  String name, profileUrl;
-  int kakaoId;
-
-  SideMenuWidget(this.name, this.profileUrl, this.kakaoId);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +15,7 @@ class SideMenuWidget extends StatelessWidget {
               children: [
                 Container(
                   margin: EdgeInsets.only(top: 10),
-                  child: Image.asset('assets/images/splash.png'),
+                  child: Image.asset('assets/image/donut_logo.png'),
                   width: 75,
                 ),
                 Expanded(

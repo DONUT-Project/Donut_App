@@ -1,3 +1,4 @@
+import 'package:donut/screen/detail/done_list_detail.dart';
 import 'package:donut/screen/detail/main_detail.dart';
 import 'package:donut/server/apis.dart';
 import 'package:donut/server/response.dart';
@@ -12,8 +13,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  late SharedPreferences sharedPreferences;
-  late UserResponse userResponse;
 
   UserServerApi userServerApi = UserServerApi();
 
@@ -21,12 +20,10 @@ class _MainPageState extends State<MainPage> {
 
   _init() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    userResponse = (await userServerApi.getMyInfo(sharedPreferences.getString("accessToken") ?? ""))!;
   }
 
   @override
   void initState() {
-    _init();
     super.initState();
   }
 
@@ -62,15 +59,13 @@ class _MainPageState extends State<MainPage> {
               )
           )),
       ),
-      drawer: SideMenuWidget(userResponse.name, userResponse.profileUrl, userResponse.userId),
-      body: SingleChildScrollView(
-        child: PageView(
-          controller: _pageController,
-          children: [
-            MainDetailPage(),
-
-          ],
-        ),
+      drawer: SideMenuWidget(),
+      body: PageView(
+        controller: _pageController,
+        children: [
+          MainDetailPage(),
+          DoneListPage()
+        ],
       ),
     );
   }

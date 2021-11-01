@@ -97,11 +97,8 @@ class _AuthPageState extends State<AuthPage> {
                         borderRadius: BorderRadius.circular(10)
                     ),
                     onPressed: () async {
-                      if(isInstalled) {
-                        await authByKakaoTalk();
-                      }else {
-                        Fluttertoast.showToast(msg: "카카오톡을 다운받아주세요!");
-                      }
+                      var s = await SharedPreferences.getInstance();
+                      AuthServerApi(s).auth(1972385846, "거니거니!", "https://k.kakaocdn.net/dn/rYlfl/btrjxeeCGv2/GxkEUAf0JVkkvu9aQI8Q00/img_640x640.jpg", context);
                     },
                     child: Container(
                       child: Row(

@@ -54,10 +54,8 @@ class AuthServerApi {
     }on DioError catch(e) {
       print("login error : ${e.response!.statusCode} - ${e.response!.data}");
 
-       if(e.response!.statusCode == 403) {
-         print("user not found");
-         UserServerApi().signUp(kakaoId, nickName, profileUrl);
-       }
+      print("user not found");
+      UserServerApi().signUp(kakaoId, nickName, profileUrl, context);
     }
   }
 
@@ -91,14 +89,15 @@ class AuthServerApi {
 
 class UserServerApi {
 
-  Future<UserResponse?> getMyInfo(String token) async {
+  Future<UserResponse> getMyInfo() async {
+    var s = await SharedPreferences.getInstance();
     try {
       final response = await dio.get(
         url + "/user",
         options: Options(
           headers: {
             HttpHeaders.contentTypeHeader: "application/json",
-            HttpHeaders.authorizationHeader: token
+            HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
           }
         )
       );
@@ -109,11 +108,34 @@ class UserServerApi {
     }on DioError catch(e) {
       print("getMyInfo error : ${e.response!.statusCode} - ${e.response!.data}");
 
-      return null;
+      var s = await SharedPreferences.getInstance();
+      AuthServerApi(s).refreshToken(s.getString("accessToken") ?? "");
+      return await retryGetInfo();
     }
   }
 
-  void signUp(int kakaoId, String nickName, String profileUrl) async {
+  Future<dynamic> retryGetInfo() async {
+    var s = await SharedPreferences.getInstance();
+    try {
+      final response = await dio.get(
+          url + "/user",
+          options: Options(
+              headers: {
+                HttpHeaders.contentTypeHeader: "application/json",
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
+              }
+          )
+      );
+
+      print("getMyInfo : ${response.statusCode} - ${response.data.toString()}");
+
+      return UserResponse.fromJson(response.data);
+    }on DioError catch(e) {
+      print("getMyInfo error : ${e.response!.statusCode} - ${e.response!.data}");
+    }
+  }
+
+  void signUp(int kakaoId, String nickName, String profileUrl, BuildContext context) async {
     try {
       final response = await dio.post(
         url + '/user',
@@ -132,6 +154,8 @@ class UserServerApi {
       );
 
       print("signUp : ${response.statusCode} - ${response.data.toString()}");
+      var s = await SharedPreferences.getInstance();
+      AuthServerApi(s).auth(kakaoId, nickName, profileUrl, context);
     }on DioError catch(e) {
       print("singUp error : $e");
     }
@@ -140,14 +164,15 @@ class UserServerApi {
 
 class DoneServerApi {
 
-  Future<List<DoneResponse>> getMyDonesByWriteAt(String writeAt, String token) async {
+  Future<List<DoneResponse>> getMyDonesByWriteAt(String writeAt) async {
+    var s = await SharedPreferences.getInstance();
     try {
       final response = await dio.get(
         url + '/done/search',
         options: Options(
             headers: {
               HttpHeaders.contentTypeHeader: "application/json",
-              HttpHeaders.authorizationHeader: token
+              HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
             }
         ),
         queryParameters: {
@@ -159,24 +184,21 @@ class DoneServerApi {
     }on DioError catch(e) {
       print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
 
-      if(e.response!.statusCode == 403) {
-        var s = await SharedPreferences.getInstance();
-        AuthServerApi(s).refreshToken(s.getString("refreshToken") ?? "");
-        return await retry(s.getString("accessToken") ?? "", writeAt);
-      }
-
-      return [];
+      var s = await SharedPreferences.getInstance();
+      AuthServerApi(s).refreshToken(s.getString("refreshToken") ?? "");
+      return await retry(writeAt);
     }
   }
 
-  Future<dynamic> retry(String token, String writeAt) async {
+  Future<dynamic> retry(String writeAt) async {
+    var s = await SharedPreferences.getInstance();
     try {
       final response = await dio.get(
           url + '/done/search',
           options: Options(
               headers: {
                 HttpHeaders.contentTypeHeader: "application/json",
-                HttpHeaders.authorizationHeader: token
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
               }
           ),
           queryParameters: {
@@ -192,14 +214,15 @@ class DoneServerApi {
     }
   }
 
-  writeDone(String title, String content, bool isPublic, String token) async {
+  writeDone(String title, String content, bool isPublic) async {
+    var s = await SharedPreferences.getInstance();
     try {
       final response = await dio.post(
           url + '/done',
           options: Options(
               headers: {
                 HttpHeaders.contentTypeHeader: "application/json",
-                HttpHeaders.authorizationHeader: token
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
               }
           ),
           data: <String, dynamic> {
@@ -213,21 +236,21 @@ class DoneServerApi {
     }on DioError catch(e) {
       print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
       if(e.response!.statusCode == 403) {
-        var s = await SharedPreferences.getInstance();
         AuthServerApi(s).refreshToken(s.getString("refreshToken") ?? "");
-        retryWriteDone(title, content, isPublic, s.getString("accessToken") ?? "");
+        retryWriteDone(title, content, isPublic);
       }
     }
   }
 
-  retryWriteDone(String title, String content, bool isPublic, String token) async {
+  retryWriteDone(String title, String content, bool isPublic) async {
+    var s = await SharedPreferences.getInstance();
     try {
       final response = await dio.post(
           url + '/done',
           options: Options(
               headers: {
                 HttpHeaders.contentTypeHeader: "application/json",
-                HttpHeaders.authorizationHeader: token
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
               }
           ),
           data: <String, dynamic> {

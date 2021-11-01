@@ -22,7 +22,7 @@ class _MainDetailState extends State<MainDetailPage> {
 
     return Stack(
       children: [
-        FutureBuilder<UserResponse?> (
+        FutureBuilder<UserResponse> (
           builder: (context, snapshot) {
             if(snapshot.hasData == false) {
               return const Center(

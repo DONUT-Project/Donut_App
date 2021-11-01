@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 late SharedPreferences _preferences;
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   KakaoContext.clientId = "914da1efa84b45edebf3b51327ac5b56";
 
   runApp(const MyApp());
