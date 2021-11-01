@@ -79,10 +79,21 @@ class _DoneListState extends State<DoneListPage> {
           ),
         ),
         Container(
+          margin: EdgeInsets.only(top: 20),
+          width: 100,
+          height: 50,
           child: RaisedButton(
             onPressed: () async {
               await doneServerApi.writeDone("test", "test", true, sharedPreferences.getString("accessToken") ?? "");
             },
+            child: const Text(
+              '작성',
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20,
+                  color: Color(0xff2C2C2C)
+              ),
+            ),
           ),
         ),
         Container(
