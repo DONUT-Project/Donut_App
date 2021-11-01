@@ -23,6 +23,7 @@ class _MainDetailState extends State<MainDetailPage> {
     return Stack(
       children: [
         FutureBuilder<UserResponse> (
+          future: userServerApi.getMyInfo(),
           builder: (context, snapshot) {
             if(snapshot.hasData == false) {
               return const Center(
@@ -34,7 +35,7 @@ class _MainDetailState extends State<MainDetailPage> {
                 child: Column(
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: height * 0.2),
+                      margin: EdgeInsets.only(top: height * 0.08),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100),
                       ),
@@ -43,7 +44,7 @@ class _MainDetailState extends State<MainDetailPage> {
                       child: Image.network(userResponse.profileUrl),
                     ),
                     Container(
-                      margin: const EdgeInsets.only(top: 40),
+                      margin: const EdgeInsets.only(top: 20),
                       child: Text(
                         userResponse.name,
                         style: const TextStyle(

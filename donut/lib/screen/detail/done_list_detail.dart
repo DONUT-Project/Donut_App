@@ -32,7 +32,7 @@ class _DoneListState extends State<DoneListPage> {
         Column(
           children: [
             Container(
-              margin: EdgeInsets.only(top: height * 0.2),
+              margin: EdgeInsets.only(top: height * 0.01),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -45,9 +45,7 @@ class _DoneListState extends State<DoneListPage> {
                             child: CircularProgressIndicator(),
                           );
                         }else {
-                          return
-                            Container(
-                              margin: EdgeInsets.only(top: height * 0.2, right: 20),
+                          return Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(100),
                               ),
@@ -109,38 +107,53 @@ class _DoneListState extends State<DoneListPage> {
           ],
         ),
         Container(
-          margin: EdgeInsets.only(top: height * 0.4),
+          margin: EdgeInsets.only(top: height * 0.2),
           child: FutureBuilder<List<DoneResponse>> (
             future: doneServerApi.getMyDonesByWriteAt(date),
             builder: (context, snapshot) {
+              print(snapshot.data);
               if(snapshot.hasData == false) {
                 return const Center(
                     child: CircularProgressIndicator()
                 );
               }else {
+                print('aa');
                 List<DoneResponse> list = snapshot.data!;
 
-                if(snapshot.data!.isEmpty) {
-                  return ListTile(
-                    title: Text('List가 없습니다.')
+                if(list.isEmpty) {
+                  return Center(
+                    child: Container(
+                      child: const Text(
+                        'List가 없습니다.',
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: Color(0xff2C2C2C)
+                        ),
+                      ),
+                    ),
                   );
                 }else {
-                  return Center(
+                  return Container(
+                    margin: EdgeInsets.only(top: height * 0.1),
                     child: ListView.builder(
+                      itemCount: list.length,
                       itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(
-                            '${list[index].title}\n${list[index].writeAt}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                                color: Color(0xff2C2C2C)
+                        return Center(
+                          child: ListTile(
+                            title: Text(
+                              list[index].title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: Color(0xff2C2C2C)
+                              ),
                             ),
-                          ),
-                          leading: const Icon(
-                            Icons.check_circle_outline,
-                            size: 20,
-                            color: Color(0xff2C2C2C),
+                            leading: const Icon(
+                              Icons.check_circle_outline,
+                              size: 20,
+                              color: Color(0xff2C2C2C),
+                            ),
                           ),
                         );
                       },
