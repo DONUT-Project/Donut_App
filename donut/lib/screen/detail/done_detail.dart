@@ -215,11 +215,6 @@ class _UpdateDoneState extends State<UpdateDonePage> {
                     String title = _editTitleController.text;
                     String content = _editContentCotroller.text;
 
-                    if(title == "" || content == "") {
-                      Fluttertoast.showToast(msg: "제목 혹은 내용을 입력해주세요!");
-                      return;
-                    }
-
                     doneServerApi.updateDone(doneId, title, content,context);
                   },
                   icon: Icon(Icons.check),

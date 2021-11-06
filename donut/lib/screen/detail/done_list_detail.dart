@@ -288,7 +288,7 @@ class _DoneListState extends State<DoneListPage> {
                                         title: '삭제',
                                         style: TextStyle(fontWeight: FontWeight.normal, fontSize: 18, color: Colors.red),
                                         onTap: (handler) async {
-                                          await handler(true);
+                                          await handler(false);
                                           showAnimatedDialog(
                                               context: context,
                                               barrierDismissible: false,
