@@ -266,6 +266,7 @@ class _DoneListState extends State<DoneListPage> {
                           controller: _refreshController,
                           onRefresh: () {
                             setState(() { });
+                            _refreshController.refreshCompleted();
                           },
                           enablePullDown: true,
                           child: ListView.builder(
