@@ -409,6 +409,17 @@ class _DoneListState extends State<DoneListPage> {
                                                         ),
                                                       ),
                                                     ),
+                                                    Container(
+                                                      margin: EdgeInsets.only(top: 10),
+                                                      child: Text(
+                                                        '내용 : $content',
+                                                        style: const TextStyle(
+                                                            fontWeight: FontWeight.w700,
+                                                            fontSize: 18,
+                                                            color: Color(0xffffffff)
+                                                        ),
+                                                      ),
+                                                    )
                                                   ],
                                                 )
                                             )
