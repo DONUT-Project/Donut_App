@@ -24,6 +24,10 @@ dependencies:
   package_info: ^2.0.2
   platform: ^3.0.2
   intl: ^0.17.0
+  flutter_rounded_date_picker: ^2.0.2
+  multi_select_item: ^1.0.3
+  flutter_animated_dialog: ^2.0.1
+  pull_to_refresh: ^2.0.0
 
 
 dev_dependencies:

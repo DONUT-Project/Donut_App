@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:donut/screen/auth_screen.dart';
 import 'package:donut/screen/main_screen.dart';
 import 'package:donut/server/response.dart';
 import 'package:flutter/cupertino.dart';
@@ -81,7 +82,6 @@ class AuthServerApi {
       print("refreshToken error : ${e.response!.statusCode} - ${e.response!.data}");
 
       if(e.response!.statusCode == 403) {
-
       }
     }
   }
@@ -192,6 +192,7 @@ class DoneServerApi {
 
   Future<dynamic> retry(String writeAt) async {
     var s = await SharedPreferences.getInstance();
+    AuthServerApi(s).refreshToken(s.getString("refresh") ?? "");
     try {
       final response = await dio.get(
           url + '/done/search',
@@ -214,8 +215,39 @@ class DoneServerApi {
     }
   }
 
-  writeDone(String title, String content, bool isPublic) async {
+  writeDone(String title, String content, bool isPublic, BuildContext context) async {
     var s = await SharedPreferences.getInstance();
+    try {
+      final response = await dio.post(
+          url + '/done',
+          options: Options(
+              headers: {
+                HttpHeaders.contentTypeHeader: "application/json",
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
+              }
+          ),
+          data: <String, dynamic> {
+            'title' : title,
+            'content' : content,
+            'isPublic' : isPublic
+          }
+      );
+
+      print(response.data);
+
+      Navigator.pop(context);
+    }on DioError catch(e) {
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+      if(e.response!.statusCode == 403) {
+        AuthServerApi(s).refreshToken(s.getString("refreshToken") ?? "");
+        retryWriteDone(title, content, isPublic);
+      }
+    }
+  }
+
+  retryWriteDone(String title, String content, bool isPublic) async {
+    var s = await SharedPreferences.getInstance();
+    AuthServerApi(s).refreshToken(s.getString("refresh") ?? "");
     try {
       final response = await dio.post(
           url + '/done',
@@ -235,29 +267,67 @@ class DoneServerApi {
       print(response.data);
     }on DioError catch(e) {
       print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
-      if(e.response!.statusCode == 403) {
-        AuthServerApi(s).refreshToken(s.getString("refreshToken") ?? "");
-        retryWriteDone(title, content, isPublic);
-      }
     }
   }
 
-  retryWriteDone(String title, String content, bool isPublic) async {
+  updateDone(int doneId, String title, String content, BuildContext context) async {
     var s = await SharedPreferences.getInstance();
     try {
-      final response = await dio.post(
-          url + '/done',
+      final response = await dio.put(
+        url + '/done/$doneId',
+        options: Options(
+            headers: {
+              HttpHeaders.contentTypeHeader: "application/json",
+              HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
+            }
+        ),
+          data: <String, dynamic> {
+            'title' : title,
+            'content' : content
+          }
+      );
+
+      Navigator.of(context).pop();
+      print(response.data);
+    }on DioError catch(e) {
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+    }
+  }
+
+  updatePublic(int doneId, bool isPublic) async {
+    var s = await SharedPreferences.getInstance();
+    try {
+      final response = await dio.put(
+          url + '/done/public/$doneId',
           options: Options(
               headers: {
                 HttpHeaders.contentTypeHeader: "application/json",
                 HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
               }
           ),
-          data: <String, dynamic> {
-            'title' : title,
-            'content' : content,
-            'isPublic' : isPublic
+          queryParameters: {
+            "isPublic" : isPublic
           }
+      );
+
+      print(response.data);
+    }on DioError catch(e) {
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+    }
+
+  }
+
+  deleteDone(int doneId) async {
+    var s = await SharedPreferences.getInstance();
+    try {
+      final response = await dio.delete(
+          url + '/done/$doneId',
+          options: Options(
+              headers: {
+                HttpHeaders.contentTypeHeader: "application/json",
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
+              }
+          ),
       );
 
       print(response.data);

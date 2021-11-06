@@ -30,10 +30,10 @@ class UserResponse {
 
 class DoneResponse {
   int doneId, kakaoId;
-  String name, title, content;
+  String name, title, content, writeAt;
   bool isPublic;
 
-  DoneResponse({required this.doneId, required this.kakaoId, required this.name, required this.title, required this.content, required this.isPublic});
+  DoneResponse({required this.doneId, required this.kakaoId, required this.writeAt, required this.name, required this.title, required this.content, required this.isPublic});
 
   factory DoneResponse.fromJson(Map<String, dynamic> json) {
     return DoneResponse(
@@ -41,6 +41,7 @@ class DoneResponse {
       name: json['userName'],
       kakaoId: json['kakaoId'],
       title: json['title'],
+      writeAt: json['writeAt'],
       content: json['content'],
       isPublic: json['isPublic']
     );

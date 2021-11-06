@@ -37,11 +37,14 @@ class _MainDetailState extends State<MainDetailPage> {
                     Container(
                       margin: EdgeInsets.only(top: height * 0.08),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                         image: NetworkImage(userResponse.profileUrl),
+                          fit: BoxFit.fill
+                        )
                       ),
                       width: width * 0.4,
                       height: width * 0.4,
-                      child: Image.network(userResponse.profileUrl),
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 20),

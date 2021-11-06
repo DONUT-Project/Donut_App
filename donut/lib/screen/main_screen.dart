@@ -5,7 +5,10 @@ import 'package:donut/server/response.dart';
 import 'package:donut/side_menu/side_menu_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'detail/done_detail.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -16,11 +19,9 @@ class _MainPageState extends State<MainPage> {
 
   UserServerApi userServerApi = UserServerApi();
 
-  PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 0);
 
-  _init() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-  }
+  bool isPageMain = false;
 
   @override
   void initState() {
@@ -46,7 +47,8 @@ class _MainPageState extends State<MainPage> {
               color: Color(0xff2C2C2C)
           ),
         ),
-        titleSpacing: 0,leading: Container(
+        titleSpacing: 15,
+        leading: Container(
           child: Builder(
               builder: (context) => Container(
                 margin: const EdgeInsets.only(left: 10),
@@ -57,7 +59,8 @@ class _MainPageState extends State<MainPage> {
                   iconSize: 35,
                 ),
               )
-          )),
+          )
+        ),
       ),
       drawer: SideMenuWidget(),
       body: PageView(
