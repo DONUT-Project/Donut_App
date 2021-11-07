@@ -5,10 +5,7 @@ import 'package:donut/server/response.dart';
 import 'package:donut/side_menu/side_menu_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'detail/done_detail.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -23,8 +20,16 @@ class _MainPageState extends State<MainPage> {
 
   bool isPageMain = false;
 
+  int? kakaoId;
+
+  getUserInfo() async {
+    UserResponse userResponse = await userServerApi.getMyInfo();
+    kakaoId = userResponse.userId;
+  }
+
   @override
   void initState() {
+    getUserInfo();
     super.initState();
   }
 
@@ -62,7 +67,7 @@ class _MainPageState extends State<MainPage> {
           )
         ),
       ),
-      drawer: SideMenuWidget(),
+      drawer: SideMenuWidget(kakaoId: kakaoId!),
       body: PageView(
         controller: _pageController,
         children: [

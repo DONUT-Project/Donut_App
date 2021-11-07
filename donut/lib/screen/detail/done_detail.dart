@@ -171,11 +171,12 @@ class _WriteDoneState extends State<WriteDonePage> {
 
 class UpdateDonePage extends StatefulWidget {
   int doneId;
+  String title, content;
 
-  UpdateDonePage(this.doneId);
+  UpdateDonePage(this.doneId, this.title, this.content);
 
   @override
-  _UpdateDoneState createState() => _UpdateDoneState(doneId);
+  _UpdateDoneState createState() => _UpdateDoneState(doneId, title, content);
 }
 
 class _UpdateDoneState extends State<UpdateDonePage> {
@@ -184,10 +185,19 @@ class _UpdateDoneState extends State<UpdateDonePage> {
   bool isPublic = false, err = false;
 
   int doneId;
+  String title, content;
 
-  _UpdateDoneState(this.doneId);
+  _UpdateDoneState(this.doneId, this.title, this.content);
 
   DoneServerApi doneServerApi = DoneServerApi();
+
+  @override
+  void initState() {
+    _editContentCotroller.text = content;
+    _editTitleController.text = title;
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

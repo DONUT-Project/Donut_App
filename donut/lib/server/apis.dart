@@ -160,6 +160,25 @@ class UserServerApi {
       print("singUp error : $e");
     }
   }
+
+  deleteUser() async {
+    var s = await SharedPreferences.getInstance();
+    try {
+      final response = await dio.delete(
+          url + '/user',
+          options: Options(
+              headers: {
+                HttpHeaders.contentTypeHeader: "application/json",
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
+              }
+          ),
+      );
+
+      print("user : ${response.statusCode} - ${response.data.toString()}");
+    }on DioError catch(e) {
+      print("user error : $e");
+    }
+  }
 }
 
 class DoneServerApi {
@@ -314,7 +333,6 @@ class DoneServerApi {
     }on DioError catch(e) {
       print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
     }
-
   }
 
   deleteDone(int doneId) async {
@@ -322,6 +340,28 @@ class DoneServerApi {
     try {
       final response = await dio.delete(
           url + '/done/$doneId',
+          options: Options(
+              headers: {
+                HttpHeaders.contentTypeHeader: "application/json",
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
+              }
+          ),
+      );
+
+      print(response.data);
+    }on DioError catch(e) {
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+    }
+  }
+}
+
+class FriendServerApi {
+
+  makeFriend(int kakaoId) async {
+    var s = await SharedPreferences.getInstance();
+    try {
+      final response = await dio.put(
+          url + '/friend/$kakaoId',
           options: Options(
               headers: {
                 HttpHeaders.contentTypeHeader: "application/json",

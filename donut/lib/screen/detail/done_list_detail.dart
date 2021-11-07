@@ -159,14 +159,7 @@ class _DoneListState extends State<DoneListPage> {
 
                                     });
                                   },
-                                  child: const Text(
-                                    '삭제',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16,
-                                        color: Colors.white
-                                    ),
-                                  ),
+                                  child: const Icon(Icons.delete, size: 25, color: Colors.white,),
                                   color: const Color(0xffD4B886),
                                 ),
                               ),
@@ -180,7 +173,7 @@ class _DoneListState extends State<DoneListPage> {
 
                                     String content = '';
                                     select.forEach((element) {content += '${element+1}번 ';});
-                                    content += '\nDoneList를 공개하시겠습니까?';
+                                    content += '\nDoneList를 공개여부를 변경하시겠습니까?';
 
                                     showAnimatedDialog(
                                         context: context,
@@ -210,14 +203,7 @@ class _DoneListState extends State<DoneListPage> {
                                           );
                                         });
                                   },
-                                  child: const Text(
-                                    '공개',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 16,
-                                        color: Colors.white
-                                    ),
-                                  ),
+                                  child: const Icon(Icons.public, size: 20, color: Colors.white),
                                   color: const Color(0xffD4B886),
                                 ),
                               )
@@ -309,7 +295,9 @@ class _DoneListState extends State<DoneListPage> {
                                                   positiveTextStyle: const TextStyle(color: Color(0xff2F5DFB), fontWeight: FontWeight.w500, fontSize: 16),
                                                 );
                                               });
-                                          setState(() {});
+                                          setState(() {
+                                            list.removeAt(index);
+                                          });
                                         },
                                         color: Color(0xffF4F4F4),
                                         backgroundRadius: 10,
@@ -319,14 +307,14 @@ class _DoneListState extends State<DoneListPage> {
                                         style: TextStyle(fontWeight: FontWeight.normal, fontSize: 18, color: Colors.green),
                                         onTap: (handler) async {
                                           await handler(false);
-                                          Navigator.of(context).push(PageTransition(child: UpdateDonePage(list[index].doneId), type: PageTransitionType.fade));
+                                          Navigator.of(context).push(PageTransition(child: UpdateDonePage(list[index].doneId, list[index].title, list[index].content), type: PageTransitionType.fade));
                                           setState(() {});
                                         },
                                         color: Color(0xffF4F4F4),
                                         backgroundRadius: 10,
                                       ),
                                       SwipeAction(
-                                        title: '공개',
+                                        title: list[index].isPublic ?  '비공개' : '공개',
                                         style: TextStyle(fontWeight: FontWeight.normal, fontSize: 18, color: Color(0xff9B9B9B)),
                                         onTap: (handler) async {
                                           await handler(false);
@@ -335,7 +323,7 @@ class _DoneListState extends State<DoneListPage> {
                                               barrierDismissible: false,
                                               builder: (context) {
                                                 return ClassicGeneralDialogWidget(
-                                                  titleText: '공개',
+                                                  titleText: '공개여부',
                                                   contentText: '${index + 1}번을 ${list[index].isPublic ? '비공개 하시겠습니까?' : "공개하시겠습니까?"}',
                                                   onPositiveClick: () {
                                                     doneServerApi.updatePublic(list[index].doneId, !list[index].isPublic);
@@ -350,7 +338,9 @@ class _DoneListState extends State<DoneListPage> {
                                                   positiveTextStyle: const TextStyle(color: Color(0xff2F5DFB), fontWeight: FontWeight.w500, fontSize: 16),
                                                 );
                                               });
-                                          setState(() {});
+                                          setState(() {
+                                            list[index].isPublic = !list[index].isPublic;
+                                          });
                                         },
                                         color: Color(0xffF4F4F4),
                                         backgroundRadius: 10,
