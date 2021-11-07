@@ -17,6 +17,11 @@ class _WriteDoneState extends State<WriteDonePage> {
   DoneServerApi doneServerApi = DoneServerApi();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
@@ -193,6 +198,8 @@ class _UpdateDoneState extends State<UpdateDonePage> {
 
   @override
   void initState() {
+    _editTitleController.text = title;
+    _editContentCotroller.text = content;
     super.initState();
   }
 
