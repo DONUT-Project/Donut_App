@@ -193,9 +193,6 @@ class _UpdateDoneState extends State<UpdateDonePage> {
 
   @override
   void initState() {
-    _editContentCotroller.text = content;
-    _editTitleController.text = title;
-
     super.initState();
   }
 
@@ -275,7 +272,7 @@ class _UpdateDoneState extends State<UpdateDonePage> {
                           err = false;
                         });
                       },
-                      placeholder: '제목을 입력하세요',
+                      placeholder: '기존제목 : $title',
                       placeholderStyle: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -305,7 +302,7 @@ class _UpdateDoneState extends State<UpdateDonePage> {
                       err = false;
                     });
                   },
-                  placeholder: '내용을 입력하세요',
+                  placeholder: '기존 내용 : $content',
                   placeholderStyle: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
