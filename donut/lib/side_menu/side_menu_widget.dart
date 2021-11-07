@@ -13,7 +13,7 @@ class SideMenuWidget extends StatelessWidget {
   TextEditingController _editingController = TextEditingController();
   var friendApi = FriendServerApi();
 
-  int kakaoId;
+  int kakaoId, friend = 0;
 
   SideMenuWidget({required this.kakaoId});
 
@@ -163,32 +163,60 @@ class SideMenuWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                  width: width * 0.65,
-                  height: 45,
-                  margin: EdgeInsets.only(top: 10, bottom: 10),
-                  child: CupertinoTextField(
-                    textAlignVertical: TextAlignVertical.top,
-                    textInputAction: TextInputAction.done,
-                    maxLines: 1,
-                    textAlign: TextAlign.start,
-                    controller: _editingController,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                      color: Color(0xffF4F4F4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                      width: width * 0.5,
+                      height: 45,
+                      margin: EdgeInsets.only(top: 10, bottom: 10),
+                      child: CupertinoTextField(
+                        textAlignVertical: TextAlignVertical.top,
+                        textInputAction: TextInputAction.done,
+                        maxLines: 1,
+                        textAlign: TextAlign.start,
+                        controller: _editingController,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          color: Color(0xffF4F4F4),
+                        ),
+                        onSubmitted: (val) async {
+                          if(val == "") {
+                            Fluttertoast.showToast(msg: "코드를 입력하세요");
+                            return;
+                          }
+
+                          friend = int.parse(val);
+
+                          friendApi.makeFriend(int.parse(val));
+                        },
+                        placeholder: '친구 코드를 입력하세요!',
+                        placeholderStyle: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: Color(0xffD1D1D1)
+                        ),
+                        padding: const EdgeInsets.only(left: 10, top: 12),
+                      )
+                  ),
+                  Container(
+                    width: 60,
+                    height: 40,
+                    child: RaisedButton(
+                      onPressed: () {
+                        if(friend == 0) {
+                          Fluttertoast.showToast(msg: "코드를 입력하세요");
+                          return;
+                        }
+
+                        friendApi.makeFriend(friend);
+                      },
+                      child: const Icon(Icons.add_rounded, size: 25, color: Colors.white,),
+                      color: const Color(0xffD4B886),
                     ),
-                    onSubmitted: (val) async {
-                      friendApi.makeFriend(int.parse(val));
-                    },
-                    placeholder: '친구 코드를 입력하세요!',
-                    placeholderStyle: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: Color(0xffD1D1D1)
-                    ),
-                    padding: const EdgeInsets.only(left: 10, top: 12),
-                  )
-              ),
+                  ),
+                ],
+              )
             ],
           ),
           ListTile(

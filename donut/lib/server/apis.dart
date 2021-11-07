@@ -6,6 +6,7 @@ import 'package:donut/screen/auth_screen.dart';
 import 'package:donut/screen/main_screen.dart';
 import 'package:donut/server/response.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -370,8 +371,10 @@ class FriendServerApi {
           ),
       );
 
+      Fluttertoast.showToast(msg: "친구추가가 완료되었습니다");
       print(response.data);
     }on DioError catch(e) {
+      Fluttertoast.showToast(msg: "친구추가실패");
       print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
     }
   }

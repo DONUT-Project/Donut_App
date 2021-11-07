@@ -5,6 +5,7 @@ import 'package:donut/server/response.dart';
 import 'package:donut/side_menu/side_menu_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class MainPage extends StatefulWidget {
@@ -29,7 +30,13 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    getUserInfo();
+    setState(() {
+      userServerApi.getMyInfo().then((value) {
+        setState(() {
+          kakaoId = value.userId;
+        });
+      });
+    });
     super.initState();
   }
 
@@ -59,7 +66,9 @@ class _MainPageState extends State<MainPage> {
                 margin: const EdgeInsets.only(left: 10),
                 child: IconButton(
                   icon: const Icon(Icons.menu),
-                  onPressed: () => Scaffold.of(context).openDrawer(),
+                  onPressed: () async {
+                    Scaffold.of(context).openDrawer();
+                  },
                   color: const Color(0xff2C2C2C),
                   iconSize: 35,
                 ),
@@ -67,7 +76,7 @@ class _MainPageState extends State<MainPage> {
           )
         ),
       ),
-      drawer: SideMenuWidget(kakaoId: kakaoId!),
+      drawer: SideMenuWidget(kakaoId: kakaoId ?? 0),
       body: PageView(
         controller: _pageController,
         children: [

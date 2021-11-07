@@ -46,6 +46,8 @@ class _AuthPageState extends State<AuthPage> {
             account.profile!.isDefaultImage ?? false ? "" : account.profile!.profileImageUrl!,
             context
         );
+        var s = await SharedPreferences.getInstance();
+        s.setInt("kakaoId", userInfo.id);
       }
     }catch(e) {
       print("login failed : $e");
