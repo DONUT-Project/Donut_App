@@ -362,6 +362,7 @@ class _ReadDoneState extends State<ReadDoneDetail> {
     var width = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 0,
@@ -487,7 +488,118 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      margin: const EdgeInsets.only(top: 20, left: 20),
+                      margin: const EdgeInsets.only(left: 20, top: 20),
+                      child: const Text(
+                        '댓글 작성',
+                        style: TextStyle(
+                            fontFamily: 'NotoSansKR',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                            color: Color(0xff2C2C2C)
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Container(
+            margin: EdgeInsets.only(top: 10),
+              height: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    width: width * 0.65,
+                    child: TextField(
+                      controller: _editCommentController,
+                      decoration: InputDecoration(
+                          hintText: isComment ? "input your comment" : "$recomment 님께 답장",
+                          contentPadding: const EdgeInsets.only(left: 10, right: 10),
+                          hintStyle: const TextStyle(
+                              fontFamily: 'NotoSansKR',
+                              fontWeight: FontWeight.normal,
+                              fontSize: 18,
+                              color: Colors.grey
+                          ),
+                          border: InputBorder.none
+                      ),
+                      textInputAction: TextInputAction.newline,
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          var comment = _editCommentController.text;
+                          if(comment.isEmpty) {
+                            Fluttertoast.showToast(msg: "댓글을 작성해주세요");
+                            return;
+                          }
+
+                          if(isComment) {
+                            commentApi.writeComment(comment, doneId, true);
+                          }else {
+                            if(commentId == -1) {
+                              Fluttertoast.showToast(msg: "답글을 달 댓글을 선택해주세요");
+                              return;
+                            }
+
+                            commentApi.writeRecomment(comment, commentId, true);
+                          }
+
+                          print(comment);
+                          _editCommentController.text = "";
+                          isComment = true;
+                          recomment = "";
+                          commentId = -1;
+                        });
+                      },
+                      icon: const Icon(Icons.send, size: 30)
+                  ),
+                  Visibility(
+                    visible: !isComment,
+                    child: Container(
+                      width: 60,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: RaisedButton(
+                        elevation: 0,
+                        color: Colors.white70,
+                        child: const Text(
+                          "취소",
+                          style: TextStyle(
+                              fontFamily: 'NotoSansKR',
+                              fontWeight: FontWeight.normal,
+                              fontSize: 13,
+                              color: Colors.black
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isComment = true;
+                            commentId = -1;
+                            recomment = "";
+                          });
+                        },
+                      ),
+                    ),
+                  )
+                ],
+              )
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(left: 20),
                       child: const Text(
                         '댓글',
                         style: TextStyle(
@@ -504,7 +616,7 @@ class _ReadDoneState extends State<ReadDoneDetail> {
             ],
           ),
           Container(
-            height: height * 0.6,
+            height: height * 0.55,
             width: width * 0.9,
             margin: const EdgeInsets.only(top: 10),
             child: FutureBuilder<List<CommentResponse>>(
@@ -817,95 +929,6 @@ class _ReadDoneState extends State<ReadDoneDetail> {
               },
             ),
           ),
-          Expanded(
-              child: Container(
-                  height: 60,
-                  alignment: Alignment.bottomCenter,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10),
-                        width: width * 0.65,
-                        child: TextField(
-                          controller: _editCommentController,
-                          decoration: InputDecoration(
-                              hintText: isComment ? "input your comment" : "$recomment 님께 답장",
-                              contentPadding: const EdgeInsets.only(left: 10, right: 10),
-                              hintStyle: const TextStyle(
-                                  fontFamily: 'NotoSansKR',
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 18,
-                                  color: Colors.grey
-                              ),
-                              border: InputBorder.none
-                          ),
-                          textInputAction: TextInputAction.newline,
-                        ),
-                      ),
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              var comment = _editCommentController.text;
-                              if(comment.isEmpty) {
-                                Fluttertoast.showToast(msg: "댓글을 작성해주세요");
-                                return;
-                              }
-
-                              if(isComment) {
-                                commentApi.writeComment(comment, doneId, true);
-                              }else {
-                                if(commentId == -1) {
-                                  Fluttertoast.showToast(msg: "답글을 달 댓글을 선택해주세요");
-                                  return;
-                                }
-
-                                commentApi.writeRecomment(comment, commentId, true);
-                              }
-
-                              print(comment);
-                              _editCommentController.text = "";
-                              isComment = true;
-                              recomment = "";
-                              commentId = -1;
-                            });
-                          },
-                          icon: const Icon(Icons.send, size: 30)
-                      ),
-                      Visibility(
-                        visible: !isComment,
-                        child: Container(
-                          width: 60,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10)
-                          ),
-                          child: RaisedButton(
-                            elevation: 0,
-                            color: Colors.white70,
-                            child: const Text(
-                              "취소",
-                              style: TextStyle(
-                                  fontFamily: 'NotoSansKR',
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 13,
-                                  color: Colors.black
-                              ),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                isComment = true;
-                                commentId = -1;
-                                recomment = "";
-                              });
-                            },
-                          ),
-                        ),
-                      )
-                    ],
-                  )
-              )
-          )
         ],
       ),
     );
