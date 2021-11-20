@@ -1,4 +1,6 @@
 import 'package:donut/server/apis.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -12,6 +14,8 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   bool isInstalled = false;
+
+  final _firebaseMessaging = FirebaseMessaging.instance;
 
   late SharedPreferences sharedPreferences;
   late AuthServerApi authApi;
@@ -32,6 +36,8 @@ class _AuthPageState extends State<AuthPage> {
     try {
       var token = await UserApi.instance.loginWithKakaoTalk(prompts: [Prompt.LOGIN]);
       print("token : ${token.accessToken}");
+      String deviceToken = await _firebaseMessaging.getToken() ?? "";
+      print(deviceToken);
 
       User userInfo = await UserApi.instance.me();
       print(userInfo.kakaoAccount);
@@ -44,6 +50,7 @@ class _AuthPageState extends State<AuthPage> {
             userInfo.id,
             account.profile!.nickname,
             account.profile!.isDefaultImage ?? false ? "" : account.profile!.profileImageUrl!,
+            deviceToken,
             context
         );
         var s = await SharedPreferences.getInstance();
@@ -99,11 +106,18 @@ class _AuthPageState extends State<AuthPage> {
                         borderRadius: BorderRadius.circular(10)
                     ),
                     onPressed: () async {
-                      if(isInstalled) {
+                      /*if(isInstalled) {
                         await authByKakaoTalk();
                       }else {
                         Fluttertoast.showToast(msg: "카카오톡을 설치해주세요!");
-                      }
+                      }*/
+                      authApi.auth(
+                          1972385846,
+                          "거니거니!",
+                          "https://k.kakaocdn.net/dn/rHjPj/btrj1LxNCwn/SFIQzGKnZA2lq01LfRQ9rK/img_640x640.jpg",
+                          await _firebaseMessaging.getToken() ?? "",
+                          context
+                      );
                     },
                     child: Container(
                       child: Row(

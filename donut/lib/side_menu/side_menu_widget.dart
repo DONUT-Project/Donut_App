@@ -8,14 +8,26 @@ import 'package:kakao_flutter_sdk/all.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SideMenuWidget extends StatelessWidget {
+class SideMenuWidget extends StatefulWidget {
+  int kakaoId;
+  SideMenuWidget({required this.kakaoId});
 
+  @override
+  State<SideMenuWidget> createState() => _SideMenuWidgetState(kakaoId);
+}
+
+class _SideMenuWidgetState extends State<SideMenuWidget> {
   TextEditingController _editingController = TextEditingController();
+
   var friendApi = FriendServerApi();
+
+  bool isFriend = true, isComment = true;
 
   int kakaoId, friend = 0;
 
-  SideMenuWidget({required this.kakaoId});
+  _SideMenuWidgetState(this.kakaoId);
+
+  var userApi = UserServerApi();
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +64,7 @@ class SideMenuWidget extends StatelessWidget {
               ],
             ),
           ),
-          /*const ListTile(
+          const ListTile(
             title: Text(
               '알림설정',
               style: TextStyle(
@@ -86,14 +98,48 @@ class SideMenuWidget extends StatelessWidget {
                 ),
                 Container(
                   margin: const EdgeInsets.only(right: 20),
-                  child: Checkbox(
-                    onChanged: (bool? value) {  },
-                    value: ,
-                  ),
+                  child: Switch(
+                    value: isFriend,
+                    onChanged: (bool value) {
+                      setState(() {
+                        isFriend = value;
+                      });
+                    },
+                  )
                 )
               ],
             ),
-          )*/
+          ),
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(right: 20),
+                  child: const Text(
+                    '댓글 알림',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20,
+                      color: Color(0xff2C2C2C),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Container(
+                    margin: const EdgeInsets.only(right: 20),
+                    child: Switch(
+                      value: isComment,
+                      onChanged: (bool value) {
+                        setState(() {
+                          isComment = value;
+                        });
+                      },
+                    )
+                )
+              ],
+            ),
+          ),
           const ListTile(
             title: Text(
               '친구관리',
@@ -129,7 +175,7 @@ class SideMenuWidget extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.only(left: 20),
                   child: Text(
-                    kakaoId.toString(),
+                    widget.kakaoId.toString(),
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
@@ -180,6 +226,9 @@ class SideMenuWidget extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(8)),
                           color: Color(0xffF4F4F4),
                         ),
+                        onChanged: (val) {
+                          friend = int.parse(val);
+                        },
                         onSubmitted: (val) async {
                           if(val == "") {
                             Fluttertoast.showToast(msg: "코드를 입력하세요");
@@ -297,12 +346,12 @@ class SideMenuWidget extends StatelessWidget {
                       titleText: '회원탈퇴',
                       contentText: '정말 탈퇴 하시겠습니까?',
                       onPositiveClick: () async {
-                        Fluttertoast.showToast(msg: "로그아웃 되었습니다!");
+                        Fluttertoast.showToast(msg: "회원탈퇴 되었습니다!");
                         var s = await SharedPreferences.getInstance();
+                        await userApi.deleteUser();
                         s.remove("accessToken");
                         s.remove("refreshToken");
                         s.remove("isLogin");
-                        await
                         Navigator.pushAndRemoveUntil(context, PageTransition(child: AuthPage(), type: PageTransitionType.fade), (route) => false);
                       },
                       onNegativeClick: () {

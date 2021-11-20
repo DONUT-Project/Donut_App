@@ -20,7 +20,7 @@ class AuthServerApi {
     sharedPreferences = s;
   }
 
-  void auth(int kakaoId, String nickName, String profileUrl, BuildContext context) async {
+  void auth(int kakaoId, String nickName, String profileUrl, String deviceToken, BuildContext context) async {
     try {
       final response = await dio.post(
         url + "/auth",
@@ -33,7 +33,8 @@ class AuthServerApi {
           <String, dynamic> {
             "kakaoId" : kakaoId,
             "nickName" : nickName,
-            "profileUrl" : profileUrl
+            "profileUrl" : profileUrl,
+            "deviceToken" : deviceToken
           }
         )
       );
@@ -57,7 +58,7 @@ class AuthServerApi {
       print("login error : ${e.response!.statusCode} - ${e.response!.data}");
 
       print("user not found");
-      UserServerApi().signUp(kakaoId, nickName, profileUrl, context);
+      UserServerApi().signUp(kakaoId, nickName, profileUrl, deviceToken, context);
     }
   }
 
@@ -136,7 +137,7 @@ class UserServerApi {
     }
   }
 
-  void signUp(int kakaoId, String nickName, String profileUrl, BuildContext context) async {
+  void signUp(int kakaoId, String nickName, String profileUrl, String deviceToken, BuildContext context) async {
     try {
       final response = await dio.post(
         url + '/user',
@@ -156,7 +157,7 @@ class UserServerApi {
 
       print("signUp : ${response.statusCode} - ${response.data.toString()}");
       var s = await SharedPreferences.getInstance();
-      AuthServerApi(s).auth(kakaoId, nickName, profileUrl, context);
+      AuthServerApi(s).auth(kakaoId, nickName, profileUrl, deviceToken, context);
     }on DioError catch(e) {
       print("singUp error : $e");
     }
@@ -375,6 +376,158 @@ class FriendServerApi {
       print(response.data);
     }on DioError catch(e) {
       Fluttertoast.showToast(msg: "친구추가실패");
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+    }
+  }
+
+  Future<List<UserResponse>> getMyFriends() async {
+    var s = await SharedPreferences.getInstance();
+    print("friend api!");
+    try {
+      print("friend api try");
+      final response = await dio.get(
+        url + '/friend',
+        options: Options(
+          headers: {
+            'Authorization' : s.getString("accessToken") ?? "",
+            HttpHeaders.contentTypeHeader: "application/json"
+          }
+        )
+      );
+      print("friend response success");
+      print("friend : " + response.data.toString());
+      print((response.data as List).map((e) => UserResponse.fromJson(e)).toList());
+
+      return (response.data as List).map((e) => UserResponse.fromJson(e)).toList();
+    } on DioError catch(e) {
+      Fluttertoast.showToast(msg: "친구 불러오기 실패");
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+
+      return [];
+    }
+  }
+}
+
+class CommentServerApi {
+  Future<List<CommentResponse>> getAllComment(int doneId) async {
+    var s = await SharedPreferences.getInstance();
+    print(doneId);
+    try {
+      final response = await dio.get(
+        url + "/comment/$doneId",
+        options: Options(
+          headers: {
+            HttpHeaders.authorizationHeader : s.getString("accessToken") ?? "",
+            HttpHeaders.contentTypeHeader: "application/json"
+          }
+        )
+      );
+
+      print("comment response success");
+      print("comment : " + response.data.toString());
+      print((response.data as List).map((e) => CommentResponse.fromJson(e)).toList());
+
+      return (response.data as List).map((e) => CommentResponse.fromJson(e)).toList();
+    } on DioError catch(e) {
+      Fluttertoast.showToast(msg: "댓글 불러오기 실패");
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+
+      return [];
+    }
+  }
+
+  writeComment(String comment, int doneId, bool isPublic) async {
+    var s = await SharedPreferences.getInstance();
+    print(doneId);
+    try {
+      final response = await dio.post(
+          url + "/comment/$doneId",
+          options: Options(
+              headers: {
+                HttpHeaders.authorizationHeader : s.getString("accessToken") ?? "",
+                HttpHeaders.contentTypeHeader: "application/json"
+              }
+          ),
+        data: {
+            "comment" : comment,
+            "isPublic" : isPublic
+        }
+      );
+
+      print("comment write response success");
+      print("comment write : " + response.data.toString());
+    } on DioError catch(e) {
+      Fluttertoast.showToast(msg: "댓글 작성 실패");
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+    }
+  }
+
+  writeRecomment(String comment, int commentId, bool isPublic) async {
+    var s = await SharedPreferences.getInstance();
+    print(commentId);
+    try {
+      final response = await dio.post(
+          url + "/comment/recomment/$commentId",
+          options: Options(
+              headers: {
+                HttpHeaders.authorizationHeader : s.getString("accessToken") ?? "",
+                HttpHeaders.contentTypeHeader: "application/json"
+              }
+          ),
+          data: {
+            "comment" : comment,
+            "isPublic" : isPublic
+          }
+      );
+
+      print("comment write response success");
+      print("comment write : " + response.data.toString());
+    } on DioError catch(e) {
+      Fluttertoast.showToast(msg: "댓글 작성 실패");
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+    }
+  }
+
+  deleteComment(int commentId) async {
+    var s = await SharedPreferences.getInstance();
+    print(commentId);
+    try {
+      final response = await dio.delete(
+          url + "/comment/$commentId",
+          options: Options(
+              headers: {
+                HttpHeaders.authorizationHeader : s.getString("accessToken") ?? "",
+                HttpHeaders.contentTypeHeader: "application/json"
+              }
+          )
+      );
+
+      print("comment delete response success");
+      print("comment delete : " + response.data.toString());
+    } on DioError catch(e) {
+      Fluttertoast.showToast(msg: "댓글 삭제 실패 : ${e.response!.statusMessage}");
+      print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
+    }
+  }
+
+  deleteRecomment(int recommentId) async {
+    var s = await SharedPreferences.getInstance();
+    print(recommentId);
+    try {
+      final response = await dio.delete(
+          url + "/comment/recomment/$recommentId",
+          options: Options(
+              headers: {
+                HttpHeaders.authorizationHeader : s.getString("accessToken") ?? "",
+                HttpHeaders.contentTypeHeader: "application/json"
+              }
+          )
+      );
+
+      print("recomment delete response success");
+      print("recomment delete : " + response.data.toString());
+    } on DioError catch(e) {
+      Fluttertoast.showToast(msg: "댓글 삭제 실패 : ${e.response!.statusMessage}");
       print("error : ${e.response!.statusCode} - ${e.response!.statusMessage}");
     }
   }

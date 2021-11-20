@@ -360,7 +360,7 @@ class _DoneListState extends State<DoneListPage> {
                                         var done = list[index];
                                         Navigator.of(context).push(
                                           PageTransition(
-                                              child: ReadDoneDetail(done.title, done.isPublic, done.content),
+                                              child: ReadDoneDetail(done.title, done.isPublic, done.content, done.doneId),
                                               type: PageTransitionType.fade
                                           )
                                         );

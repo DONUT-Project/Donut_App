@@ -1,3 +1,5 @@
+import 'package:donut/screen/main_screen.dart';
+
 class TokenResponse {
   String accessToken;
   String refreshToken;
@@ -44,6 +46,54 @@ class DoneResponse {
       writeAt: json['writeAt'],
       content: json['content'],
       isPublic: json['isPublic']
+    );
+  }
+}
+
+class RecommentResponse {
+  int recommentId, commentId, userId;
+  String nickName, comment, writeAt, profileUrl;
+  bool isPublic;
+
+  RecommentResponse({required this.recommentId, required this.commentId, required this.userId, required this.nickName, required this.comment, required this.writeAt, required this.isPublic, required this.profileUrl});
+
+  factory RecommentResponse.fromJson(Map<String, dynamic> json) {
+    return RecommentResponse(
+      recommentId: json["reCommentId"],
+      commentId: json["commentId"],
+      userId: json["userId"],
+      nickName: json["nickName"],
+      comment: json["comment"],
+      writeAt: json["writeAt"],
+      isPublic: json["isPublic"],
+      profileUrl: json["profileUrl"]
+    );
+  }
+}
+
+class CommentResponse {
+  int commentId, doneId, userId;
+  String nickName, comment, writeAt, profileUrl;
+  bool isPublic;
+  List<RecommentResponse> recommentResponses;
+
+  CommentResponse({required this.commentId, required this.doneId, required this.userId, required this.nickName, required this.comment, required this.writeAt, required this.isPublic, required this.recommentResponses, required this.profileUrl});
+
+  factory CommentResponse.fromJson(Map<String, dynamic> json) {
+    List<RecommentResponse> recomments = (json["reComment"] as List).map((e) => RecommentResponse.fromJson(e)).toList();
+
+    print(recomments);
+
+    return CommentResponse(
+        commentId: json["commentId"],
+        doneId: json["doneId"],
+        userId: json["userId"],
+        nickName: json["nickName"],
+        comment: json["comment"],
+        writeAt: json["writeAt"],
+        profileUrl: json["profileUrl"],
+        isPublic: json["isPublic"],
+        recommentResponses: recomments
     );
   }
 }
