@@ -553,10 +553,13 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                           }
 
                           print(comment);
-                          _editCommentController.text = "";
-                          isComment = true;
-                          recomment = "";
-                          commentId = -1;
+
+                          setState(() {
+                            _editCommentController.text = "";
+                            isComment = true;
+                            recomment = "";
+                            commentId = -1;
+                          });
                         });
                       },
                       icon: const Icon(Icons.send, size: 30)
