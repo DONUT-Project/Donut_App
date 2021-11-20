@@ -621,7 +621,7 @@ class _ReadDoneState extends State<ReadDoneDetail> {
             ],
           ),
           Container(
-            height: height * 0.55,
+            height: height * 0.5,
             width: width * 0.9,
             margin: const EdgeInsets.only(top: 10),
             child: FutureBuilder<List<CommentResponse>>(
