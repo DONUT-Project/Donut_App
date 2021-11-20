@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WriteDonePage extends StatefulWidget {
@@ -355,6 +356,7 @@ class _ReadDoneState extends State<ReadDoneDetail> {
   List<CommentResponse> commentResponse = [];
 
   _ReadDoneState(this.title, this.isPublic, this.content, this.doneId);
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
@@ -628,302 +630,310 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                   );
                 }else {
                   commentResponse = snapshot.data ?? [];
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: commentResponse.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      print(commentResponse[index].nickName);
-                      return Container(
-                        margin: EdgeInsets.only(top: 10),
-                        child: CommentTreeWidget<CommentResponse, RecommentResponse> (
-                          commentResponse[index],
-                          commentResponse[index].recommentResponses,
-                          treeThemeData: const TreeThemeData(
-                              lineColor: Color(0xffD4B886),
-                              lineWidth: 1
-                          ),
-                          contentRoot: (context, data) {
-                            return Container(
-                              width: width * 0.65,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: const Color(0xffD4B886)
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                          child: Container(
-                                            margin: EdgeInsets.only(left: 20),
-                                            child: Text(
-                                              commentResponse[index].nickName,
-                                              style: const TextStyle(
-                                                  fontFamily: 'NotoSansKR',
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 18,
-                                                  color: Colors.white
-                                              ),
-                                            ),
-                                            alignment: Alignment.topLeft,
-                                          )
-                                      ),
-                                      Expanded(
-                                          child: Container(
-                                            margin: const EdgeInsets.only(right: 10),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.end,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () {
-
-                                                  },
-                                                  icon: const Icon(Icons.edit, color: Colors.white, size: 20,),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () {
-                                                    showAnimatedDialog(
-                                                      context: context,
-                                                      barrierDismissible: false,
-                                                      builder: (context) {
-                                                        return ClassicGeneralDialogWidget(
-                                                          titleText: '댓글 삭제',
-                                                          contentText: '댓글을 삭제 하시겠습니까?',
-                                                          onPositiveClick: () async {
-                                                            Fluttertoast.showToast(msg: "댓글이 삭제되었습니다.");
-                                                            Navigator.of(context).pop();
-                                                          },
-                                                          onNegativeClick: () {
-                                                            Fluttertoast.showToast(msg: "취소");
-                                                            Navigator.of(context).pop();
-                                                          },
-                                                          positiveText: '네',
-                                                          negativeText: '아니요',
-                                                          negativeTextStyle: const TextStyle(
-                                                              color: Colors.red,
-                                                              fontFamily: 'NotoSansKR',
-                                                              fontWeight: FontWeight.w500,
-                                                              fontSize: 16
-                                                          ),
-                                                          positiveTextStyle: const TextStyle(
-                                                              color: Color(0xff2F5DFB),
-                                                              fontFamily: 'NotoSansKR',
-                                                              fontWeight: FontWeight.w500,
-                                                              fontSize: 16
-                                                          ),
-                                                        );
-                                                      });
-                                                  },
-                                                  icon: const Icon(Icons.delete, color: Colors.white, size: 20,),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      recomment = data.nickName;
-                                                      isComment = false;
-                                                      commentId = data.commentId;
-                                                    });
-                                                  },
-                                                  icon: const Icon(Icons.add_comment_outlined, color: Colors.white, size: 20,),
-                                                ),
-                                              ],
-                                            ),
-                                            alignment: Alignment.topRight,
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                          child: Container(
-                                            margin: EdgeInsets.only(left: 23),
-                                            child: Text(
-                                              commentResponse[index].comment,
-                                              style: const TextStyle(
-                                                  fontFamily: 'NotoSansKR',
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 15,
-                                                  color: Colors.white
-                                              ),
-                                            ),
-                                            alignment: Alignment.topLeft,
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                          child: Container(
-                                            margin: EdgeInsets.only(left: 23, bottom: 10, right: 20),
-                                            child: Text(
-                                              "${commentResponse[index].writeAt.substring(0, 10)} | ${commentResponse[index].writeAt.substring(12, 19)}",
-                                              style: const TextStyle(
-                                                  fontFamily: 'NotoSansKR',
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 15,
-                                                  color: Colors.white
-                                              ),
-                                            ),
-                                            alignment: Alignment.topRight,
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          contentChild: (context, data) {
-                            return Container(
-                              width: width * 0.55,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: const Color(0xffD4B886)
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                          child: Container(
-                                            margin: EdgeInsets.only(left: 20),
-                                            child: Text(
-                                              data.nickName,
-                                              style: const TextStyle(
-                                                  fontFamily: 'NotoSansKR',
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 18,
-                                                  color: Colors.white
-                                              ),
-                                            ),
-                                            alignment: Alignment.topLeft,
-                                          )
-                                      ),
-                                      Expanded(
-                                          child: Container(
-                                            margin: const EdgeInsets.only(left: 20),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.end,
-                                              children: [
-                                                IconButton(
-                                                  onPressed: () {
-
-                                                  },
-                                                  icon: const Icon(Icons.edit, color: Colors.white, size: 20,),
-                                                ),
-                                                IconButton(
-                                                  onPressed: () {
-                                                    showAnimatedDialog(
-                                                        context: context,
-                                                        barrierDismissible: false,
-                                                        builder: (context) {
-                                                          return ClassicGeneralDialogWidget(
-                                                            titleText: '댓글 삭제',
-                                                            contentText: '댓글을 삭제 하시겠습니까?',
-                                                            onPositiveClick: () async {
-                                                              Fluttertoast.showToast(msg: "댓글이 삭제되었습니다.");
-                                                              Navigator.of(context).pop();
-                                                            },
-                                                            onNegativeClick: () {
-                                                              Fluttertoast.showToast(msg: "취소");
-                                                              Navigator.of(context).pop();
-                                                            },
-                                                            positiveText: '네',
-                                                            negativeText: '아니요',
-                                                            negativeTextStyle: const TextStyle(
-                                                                color: Colors.red,
-                                                                fontFamily: 'NotoSansKR',
-                                                                fontWeight: FontWeight.w500,
-                                                                fontSize: 16
-                                                            ),
-                                                            positiveTextStyle: const TextStyle(
-                                                                color: Color(0xff2F5DFB),
-                                                                fontFamily: 'NotoSansKR',
-                                                                fontWeight: FontWeight.w500,
-                                                                fontSize: 16
-                                                            ),
-                                                          );
-                                                        }
-                                                    );
-                                                  },
-                                                  icon: const Icon(Icons.delete, color: Colors.white, size: 20,),
-                                                ),
-                                              ],
-                                            ),
-                                            alignment: Alignment.topRight,
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                          child: Container(
-                                            margin: EdgeInsets.only(left: 23),
-                                            child: Text(
-                                              data.comment,
-                                              style: const TextStyle(
-                                                  fontFamily: 'NotoSansKR',
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 15,
-                                                  color: Colors.white
-                                              ),
-                                            ),
-                                            alignment: Alignment.topLeft,
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                          child: Container(
-                                            margin: EdgeInsets.only(right: 20, bottom: 10),
-                                            child: Text(
-                                              "${data.writeAt.substring(0, 10)} | ${data.writeAt.substring(12, 19)}",
-                                              style: const TextStyle(
-                                                  fontFamily: 'NotoSansKR',
-                                                  fontWeight: FontWeight.normal,
-                                                  fontSize: 15,
-                                                  color: Colors.white
-                                              ),
-                                            ),
-                                            alignment: Alignment.topRight,
-                                          )
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          avatarRoot: (context, data) {
-                            return PreferredSize(
-                                child: CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Colors.grey,
-                                  backgroundImage: NetworkImage(data.profileUrl,),
-                                ),
-                                preferredSize: Size.fromRadius(12)
-                            );
-                          },
-                          avatarChild: (context, data) {
-                            return PreferredSize(
-                                child: CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Colors.white54,
-                                  backgroundImage: NetworkImage(data.profileUrl,),
-                                ),
-                                preferredSize: Size.fromRadius(12)
-                            );
-                          },
-                        ),
-                      );
+                  return SmartRefresher(
+                    controller: _refreshController,
+                    onRefresh: () {
+                        setState(() { });
+                        _refreshController.refreshCompleted();
                     },
+                    enablePullDown: true,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: commentResponse.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        print(commentResponse[index].nickName);
+                        return Container(
+                          margin: EdgeInsets.only(top: 10),
+                          child: CommentTreeWidget<CommentResponse, RecommentResponse> (
+                            commentResponse[index],
+                            commentResponse[index].recommentResponses,
+                            treeThemeData: const TreeThemeData(
+                                lineColor: Color(0xffD4B886),
+                                lineWidth: 1
+                            ),
+                            contentRoot: (context, data) {
+                              return Container(
+                                width: width * 0.65,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: const Color(0xffD4B886)
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                            child: Container(
+                                              margin: EdgeInsets.only(left: 20),
+                                              child: Text(
+                                                commentResponse[index].nickName,
+                                                style: const TextStyle(
+                                                    fontFamily: 'NotoSansKR',
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 18,
+                                                    color: Colors.white
+                                                ),
+                                              ),
+                                              alignment: Alignment.topLeft,
+                                            )
+                                        ),
+                                        Expanded(
+                                            child: Container(
+                                              margin: const EdgeInsets.only(right: 10),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {
+
+                                                    },
+                                                    icon: const Icon(Icons.edit, color: Colors.white, size: 20,),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      showAnimatedDialog(
+                                                          context: context,
+                                                          barrierDismissible: false,
+                                                          builder: (context) {
+                                                            return ClassicGeneralDialogWidget(
+                                                              titleText: '댓글 삭제',
+                                                              contentText: '댓글을 삭제 하시겠습니까?',
+                                                              onPositiveClick: () async {
+                                                                Fluttertoast.showToast(msg: "댓글이 삭제되었습니다.");
+                                                                Navigator.of(context).pop();
+                                                              },
+                                                              onNegativeClick: () {
+                                                                Fluttertoast.showToast(msg: "취소");
+                                                                Navigator.of(context).pop();
+                                                              },
+                                                              positiveText: '네',
+                                                              negativeText: '아니요',
+                                                              negativeTextStyle: const TextStyle(
+                                                                  color: Colors.red,
+                                                                  fontFamily: 'NotoSansKR',
+                                                                  fontWeight: FontWeight.w500,
+                                                                  fontSize: 16
+                                                              ),
+                                                              positiveTextStyle: const TextStyle(
+                                                                  color: Color(0xff2F5DFB),
+                                                                  fontFamily: 'NotoSansKR',
+                                                                  fontWeight: FontWeight.w500,
+                                                                  fontSize: 16
+                                                              ),
+                                                            );
+                                                          });
+                                                    },
+                                                    icon: const Icon(Icons.delete, color: Colors.white, size: 20,),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        recomment = data.nickName;
+                                                        isComment = false;
+                                                        commentId = data.commentId;
+                                                      });
+                                                    },
+                                                    icon: const Icon(Icons.add_comment_outlined, color: Colors.white, size: 20,),
+                                                  ),
+                                                ],
+                                              ),
+                                              alignment: Alignment.topRight,
+                                            )
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                            child: Container(
+                                              margin: EdgeInsets.only(left: 23),
+                                              child: Text(
+                                                commentResponse[index].comment,
+                                                style: const TextStyle(
+                                                    fontFamily: 'NotoSansKR',
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 15,
+                                                    color: Colors.white
+                                                ),
+                                              ),
+                                              alignment: Alignment.topLeft,
+                                            )
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                            child: Container(
+                                              margin: EdgeInsets.only(left: 23, bottom: 10, right: 20),
+                                              child: Text(
+                                                "${commentResponse[index].writeAt.substring(0, 10)} | ${commentResponse[index].writeAt.substring(12, 19)}",
+                                                style: const TextStyle(
+                                                    fontFamily: 'NotoSansKR',
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 15,
+                                                    color: Colors.white
+                                                ),
+                                              ),
+                                              alignment: Alignment.topRight,
+                                            )
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            contentChild: (context, data) {
+                              return Container(
+                                width: width * 0.55,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: const Color(0xffD4B886)
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                            child: Container(
+                                              margin: EdgeInsets.only(left: 20),
+                                              child: Text(
+                                                data.nickName,
+                                                style: const TextStyle(
+                                                    fontFamily: 'NotoSansKR',
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 18,
+                                                    color: Colors.white
+                                                ),
+                                              ),
+                                              alignment: Alignment.topLeft,
+                                            )
+                                        ),
+                                        Expanded(
+                                            child: Container(
+                                              margin: const EdgeInsets.only(left: 20),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {
+
+                                                    },
+                                                    icon: const Icon(Icons.edit, color: Colors.white, size: 20,),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      showAnimatedDialog(
+                                                          context: context,
+                                                          barrierDismissible: false,
+                                                          builder: (context) {
+                                                            return ClassicGeneralDialogWidget(
+                                                              titleText: '댓글 삭제',
+                                                              contentText: '댓글을 삭제 하시겠습니까?',
+                                                              onPositiveClick: () async {
+                                                                Fluttertoast.showToast(msg: "댓글이 삭제되었습니다.");
+                                                                Navigator.of(context).pop();
+                                                              },
+                                                              onNegativeClick: () {
+                                                                Fluttertoast.showToast(msg: "취소");
+                                                                Navigator.of(context).pop();
+                                                              },
+                                                              positiveText: '네',
+                                                              negativeText: '아니요',
+                                                              negativeTextStyle: const TextStyle(
+                                                                  color: Colors.red,
+                                                                  fontFamily: 'NotoSansKR',
+                                                                  fontWeight: FontWeight.w500,
+                                                                  fontSize: 16
+                                                              ),
+                                                              positiveTextStyle: const TextStyle(
+                                                                  color: Color(0xff2F5DFB),
+                                                                  fontFamily: 'NotoSansKR',
+                                                                  fontWeight: FontWeight.w500,
+                                                                  fontSize: 16
+                                                              ),
+                                                            );
+                                                          }
+                                                      );
+                                                    },
+                                                    icon: const Icon(Icons.delete, color: Colors.white, size: 20,),
+                                                  ),
+                                                ],
+                                              ),
+                                              alignment: Alignment.topRight,
+                                            )
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                            child: Container(
+                                              margin: EdgeInsets.only(left: 23),
+                                              child: Text(
+                                                data.comment,
+                                                style: const TextStyle(
+                                                    fontFamily: 'NotoSansKR',
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 15,
+                                                    color: Colors.white
+                                                ),
+                                              ),
+                                              alignment: Alignment.topLeft,
+                                            )
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                            child: Container(
+                                              margin: EdgeInsets.only(right: 20, bottom: 10),
+                                              child: Text(
+                                                "${data.writeAt.substring(0, 10)} | ${data.writeAt.substring(12, 19)}",
+                                                style: const TextStyle(
+                                                    fontFamily: 'NotoSansKR',
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 15,
+                                                    color: Colors.white
+                                                ),
+                                              ),
+                                              alignment: Alignment.topRight,
+                                            )
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            avatarRoot: (context, data) {
+                              return PreferredSize(
+                                  child: CircleAvatar(
+                                    radius: 18,
+                                    backgroundColor: Colors.grey,
+                                    backgroundImage: NetworkImage(data.profileUrl,),
+                                  ),
+                                  preferredSize: Size.fromRadius(12)
+                              );
+                            },
+                            avatarChild: (context, data) {
+                              return PreferredSize(
+                                  child: CircleAvatar(
+                                    radius: 18,
+                                    backgroundColor: Colors.white54,
+                                    backgroundImage: NetworkImage(data.profileUrl,),
+                                  ),
+                                  preferredSize: Size.fromRadius(12)
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   );
                 }
               },
