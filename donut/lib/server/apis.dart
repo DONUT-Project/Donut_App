@@ -361,8 +361,9 @@ class FriendServerApi {
 
   makeFriend(int kakaoId) async {
     var s = await SharedPreferences.getInstance();
+    print(kakaoId);
     try {
-      final response = await dio.put(
+      final response = await dio.post(
           url + '/friend/$kakaoId',
           options: Options(
               headers: {
