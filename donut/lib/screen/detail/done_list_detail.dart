@@ -60,8 +60,7 @@ class _DoneListState extends State<DoneListPage> {
                             child: CircularProgressIndicator(),
                           );
                         }else {
-                          return
-                            Container(
+                          return Container(
                               margin: EdgeInsets.only(top: height * 0.08),
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,

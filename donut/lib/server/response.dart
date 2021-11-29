@@ -18,14 +18,17 @@ class UserResponse {
   int userId;
   String name;
   String profileUrl;
+  bool isComment, isFriend;
 
-  UserResponse({required this.userId, required this.name, required this.profileUrl});
+  UserResponse({required this.userId, required this.name, required this.profileUrl, required this.isFriend, required this.isComment});
 
   factory UserResponse.fromJson(Map<String, dynamic> json) {
     return UserResponse(
         userId: json["userId"],
         name: json["name"],
-        profileUrl: json["profileUrl"]
+        profileUrl: json["profileUrl"],
+        isComment: json['isNotificationComment'],
+        isFriend: json['isNotificationFriend']
     );
   }
 }

@@ -347,16 +347,27 @@ class _ReadDoneState extends State<ReadDoneDetail> {
   bool isPublic;
 
   String hint = "input your comment", recomment = "";
-  int commentId = -1;
+  int commentId = -1, recommentId = -1, mine = -1;
   bool isComment = true;
+  bool isUpdated = false;
+  bool isUpdateComment = true;
+
+  late UserResponse userResponse;
 
   var commentApi = CommentServerApi();
+  var userApi = UserServerApi();
   var _editCommentController = TextEditingController();
 
   List<CommentResponse> commentResponse = [];
 
   _ReadDoneState(this.title, this.isPublic, this.content, this.doneId);
   RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  @override
+  void initState() {
+    userApi.getMyInfo().then((value) => userResponse = value);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -519,7 +530,7 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                     child: TextField(
                       controller: _editCommentController,
                       decoration: InputDecoration(
-                          hintText: isComment ? "input your comment" : "$recomment 님께 답장",
+                          hintText: hint,
                           contentPadding: const EdgeInsets.only(left: 10, right: 10),
                           hintStyle: const TextStyle(
                               fontFamily: 'NotoSansKR',
@@ -541,31 +552,52 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                             return;
                           }
 
-                          if(isComment) {
-                            commentApi.writeComment(comment, doneId, true);
-                          }else {
-                            if(commentId == -1) {
-                              Fluttertoast.showToast(msg: "답글을 달 댓글을 선택해주세요");
-                              return;
-                            }
+                          if(isUpdated) {
+                            if(isUpdateComment) {
+                              if(commentId == -1) {
+                                Fluttertoast.showToast(msg: "수정할 댓글을 선택해주세요");
+                                return;
+                              }
 
-                            commentApi.writeRecomment(comment, commentId, true);
+                              commentApi.updateComment(commentId, comment);
+                            }else {
+                              if(recommentId == -1) {
+                                Fluttertoast.showToast(msg: "수정할 대댓글을 선택해주세요");
+                                return;
+                              }
+
+                              commentApi.updateRecomment(recommentId, comment);
+                            }
+                          }else {
+                            if(isComment) {
+                              commentApi.writeComment(comment, doneId, true);
+                            }else if(isComment == false){
+                              if(commentId == -1) {
+                                Fluttertoast.showToast(msg: "답글을 달 댓글을 선택해주세요");
+                                return;
+                              }
+
+                              commentApi.writeRecomment(comment, commentId, true);
+                            }
                           }
 
                           print(comment);
 
                           setState(() {
                             _editCommentController.text = "";
+                            isUpdateComment = true;
                             isComment = true;
+                            isUpdated = false;
                             recomment = "";
                             commentId = -1;
+                            hint = "input your comment";
                           });
                         });
                       },
                       icon: const Icon(Icons.send, size: 30)
                   ),
                   Visibility(
-                    visible: !isComment,
+                    visible: !isComment || isUpdated,
                     child: Container(
                       width: 60,
                       decoration: BoxDecoration(
@@ -586,8 +618,11 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                         onPressed: () {
                           setState(() {
                             isComment = true;
+                            isUpdated = false;
+                            isUpdateComment = true;
                             commentId = -1;
                             recomment = "";
+                            hint = "input your comment";
                           });
                         },
                       ),
@@ -689,12 +724,33 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                                                 children: [
                                                   IconButton(
                                                     onPressed: () {
+                                                      if(!isComment) {
+                                                        Fluttertoast.showToast(msg: "답변을 작성해주세요");
+                                                        return;
+                                                      }
 
+                                                      if(data.userId != userResponse.userId) {
+                                                        Fluttertoast.showToast(msg: "자신의 댓글이 아닙니다");
+                                                        return;
+                                                      }
+
+                                                      setState(() {
+                                                        isUpdated = true;
+                                                        isUpdateComment = true;
+                                                        hint = "updated comment";
+                                                        _editCommentController.text = data.comment;
+                                                        commentId = data.commentId;
+                                                      });
                                                     },
                                                     icon: const Icon(Icons.edit, color: Colors.white, size: 20,),
                                                   ),
                                                   IconButton(
                                                     onPressed: () {
+                                                      if(data.userId != userResponse.userId) {
+                                                        Fluttertoast.showToast(msg: "자신의 댓글이 아닙니다.");
+                                                        return;
+                                                      }
+
                                                       showAnimatedDialog(
                                                           context: context,
                                                           barrierDismissible: false,
@@ -704,6 +760,7 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                                                               contentText: '댓글을 삭제 하시겠습니까?',
                                                               onPositiveClick: () async {
                                                                 Fluttertoast.showToast(msg: "댓글이 삭제되었습니다.");
+                                                                commentApi.deleteComment(commentResponse[index].commentId);
                                                                 Navigator.of(context).pop();
                                                               },
                                                               onNegativeClick: () {
@@ -731,10 +788,16 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                                                   ),
                                                   IconButton(
                                                     onPressed: () {
+                                                      if(isUpdated) {
+                                                        Fluttertoast.showToast(msg: "수정을 해주세요");
+                                                        return;
+                                                      }
+
                                                       setState(() {
                                                         recomment = data.nickName;
                                                         isComment = false;
                                                         commentId = data.commentId;
+                                                        hint = "${data.nickName}님께 답장";
                                                       });
                                                     },
                                                     icon: const Icon(Icons.add_comment_outlined, color: Colors.white, size: 20,),
@@ -823,12 +886,33 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                                                 children: [
                                                   IconButton(
                                                     onPressed: () {
+                                                      if(!isComment) {
+                                                        Fluttertoast.showToast(msg: "답변을 작성해주세요");
+                                                        return;
+                                                      }
 
+                                                      if(data.userId != userResponse.userId) {
+                                                        Fluttertoast.showToast(msg: "자신의 댓글이 아닙니다.");
+                                                        return;
+                                                      }
+
+                                                      setState(() {
+                                                        isUpdated = true;
+                                                        isUpdateComment = false;
+                                                        hint = "updated comment";
+                                                        _editCommentController.text = data.comment;
+                                                        recommentId = data.recommentId;
+                                                      });
                                                     },
                                                     icon: const Icon(Icons.edit, color: Colors.white, size: 20,),
                                                   ),
                                                   IconButton(
                                                     onPressed: () {
+                                                      if(data.userId != userResponse.userId) {
+                                                        Fluttertoast.showToast(msg: "자신의 댓글이 아닙니다.");
+                                                        return;
+                                                      }
+
                                                       showAnimatedDialog(
                                                           context: context,
                                                           barrierDismissible: false,
@@ -838,6 +922,7 @@ class _ReadDoneState extends State<ReadDoneDetail> {
                                                               contentText: '댓글을 삭제 하시겠습니까?',
                                                               onPositiveClick: () async {
                                                                 Fluttertoast.showToast(msg: "댓글이 삭제되었습니다.");
+                                                                commentApi.deleteRecomment(data.recommentId);
                                                                 Navigator.of(context).pop();
                                                               },
                                                               onNegativeClick: () {
