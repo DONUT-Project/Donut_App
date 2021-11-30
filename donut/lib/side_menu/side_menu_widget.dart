@@ -10,10 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SideMenuWidget extends StatefulWidget {
   int kakaoId;
-  SideMenuWidget({required this.kakaoId});
+  bool isFriend, isComment;
+
+  SideMenuWidget({required this.kakaoId, required this.isComment, required this. isFriend});
 
   @override
-  State<SideMenuWidget> createState() => _SideMenuWidgetState(kakaoId);
+  State<SideMenuWidget> createState() => _SideMenuWidgetState(kakaoId, isComment, isFriend);
 }
 
 class _SideMenuWidgetState extends State<SideMenuWidget> {
@@ -21,11 +23,11 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
 
   var friendApi = FriendServerApi();
 
-  bool isFriend = true, isComment = true;
+  bool isFriend, isComment;
 
   int kakaoId, friend = 0;
 
-  _SideMenuWidgetState(this.kakaoId);
+  _SideMenuWidgetState(this.kakaoId, this.isComment, this.isFriend);
 
   var userApi = UserServerApi();
 
@@ -100,7 +102,9 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
                   margin: const EdgeInsets.only(right: 20),
                   child: Switch(
                     value: isFriend,
-                    onChanged: (bool value) {
+                    onChanged: (bool value) async {
+                      await userApi.updateFriend(value);
+
                       setState(() {
                         isFriend = value;
                       });
@@ -130,7 +134,9 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
                     margin: const EdgeInsets.only(right: 20),
                     child: Switch(
                       value: isComment,
-                      onChanged: (bool value) {
+                      onChanged: (bool value) async {
+                        await userApi.updateComment(value);
+
                         setState(() {
                           isComment = value;
                         });

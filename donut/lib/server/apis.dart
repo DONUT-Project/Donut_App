@@ -163,6 +163,54 @@ class UserServerApi {
     }
   }
 
+  updateComment(bool isComment) async {
+    var s = await SharedPreferences.getInstance();
+    try {
+      final response = await dio.put(
+          url + "/user/comment",
+          options: Options(
+              headers: {
+                HttpHeaders.contentTypeHeader: "application/json",
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
+              }
+          ),
+          queryParameters: {
+              "isComment" : isComment
+          }
+      );
+
+      print("update : ${response.statusCode} - ${response.data.toString()}");
+
+      return UserResponse.fromJson(response.data);
+    }on DioError catch(e) {
+      print("update error : ${e.response!.statusCode} - ${e.response!.data}");
+    }
+  }
+
+  updateFriend(bool isFriend) async {
+    var s = await SharedPreferences.getInstance();
+    try {
+      final response = await dio.put(
+          url + "/user/friend",
+          options: Options(
+              headers: {
+                HttpHeaders.contentTypeHeader: "application/json",
+                HttpHeaders.authorizationHeader: s.getString("accessToken") ?? ""
+              }
+          ),
+          queryParameters: {
+            "isFriend" : isFriend
+          }
+      );
+
+      print("update : ${response.statusCode} - ${response.data.toString()}");
+
+      return UserResponse.fromJson(response.data);
+    }on DioError catch(e) {
+      print("update friend error : ${e.response!.statusCode} - ${e.response!.data}");
+    }
+  }
+
   deleteUser() async {
     var s = await SharedPreferences.getInstance();
     try {

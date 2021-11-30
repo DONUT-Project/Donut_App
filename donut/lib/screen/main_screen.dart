@@ -16,6 +16,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
 
   UserServerApi userServerApi = UserServerApi();
+  bool? isComment, isFriend;
 
   final PageController _pageController = PageController(initialPage: 0);
 
@@ -34,6 +35,8 @@ class _MainPageState extends State<MainPage> {
       userServerApi.getMyInfo().then((value) {
         setState(() {
           kakaoId = value.userId;
+          isComment = value.isComment;
+          isFriend = value.isFriend;
         });
       });
     });
@@ -76,7 +79,7 @@ class _MainPageState extends State<MainPage> {
           )
         ),
       ),
-      drawer: SideMenuWidget(kakaoId: kakaoId ?? 0),
+      drawer: SideMenuWidget(kakaoId: kakaoId ?? 0, isComment: isComment ?? true, isFriend: isFriend ?? true,),
       body: PageView(
         controller: _pageController,
         children: [
