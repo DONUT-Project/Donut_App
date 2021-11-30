@@ -33,7 +33,7 @@ class _MainDetailState extends State<MainDetailPage> {
 
     return SlidingUpPanel(
       maxHeight: height,
-      minHeight: height * 0.32,
+      minHeight: height * 0.4,
       controller: slidingController,
       boxShadow: [],
       color: const Color(0xffD4B886),

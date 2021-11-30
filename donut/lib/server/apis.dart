@@ -180,8 +180,6 @@ class UserServerApi {
       );
 
       print("update : ${response.statusCode} - ${response.data.toString()}");
-
-      return UserResponse.fromJson(response.data);
     }on DioError catch(e) {
       print("update error : ${e.response!.statusCode} - ${e.response!.data}");
     }
@@ -204,8 +202,6 @@ class UserServerApi {
       );
 
       print("update : ${response.statusCode} - ${response.data.toString()}");
-
-      return UserResponse.fromJson(response.data);
     }on DioError catch(e) {
       print("update friend error : ${e.response!.statusCode} - ${e.response!.data}");
     }
