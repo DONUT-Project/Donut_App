@@ -188,12 +188,25 @@ class _MainDetailState extends State<MainDetailPage> {
                 return Center(
                   child: Column(
                     children: [
+                      userResponse.profileUrl != "" ?
                       Container(
                         margin: EdgeInsets.only(top: height * 0.08),
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             image: DecorationImage(
                                 image: NetworkImage(userResponse.profileUrl),
+                                fit: BoxFit.fill
+                            )
+                        ),
+                        width: width * 0.4,
+                        height: width * 0.4,
+                      ) :
+                      Container(
+                        margin: EdgeInsets.only(top: height * 0.08),
+                        decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: AssetImage("assets/image/default.png"),
                                 fit: BoxFit.fill
                             )
                         ),

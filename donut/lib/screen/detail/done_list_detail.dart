@@ -60,18 +60,31 @@ class _DoneListState extends State<DoneListPage> {
                             child: CircularProgressIndicator(),
                           );
                         }else {
-                          return Container(
-                              margin: EdgeInsets.only(top: height * 0.08),
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                      image: NetworkImage(snapshot.data!.profileUrl),
-                                      fit: BoxFit.fill
-                                  )
-                              ),
-                              width: width * 0.4,
-                              height: width * 0.4,
-                            );
+                          return snapshot.data!.profileUrl != "" ?
+                          Container(
+                            margin: EdgeInsets.only(top: height * 0.08),
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: NetworkImage(snapshot.data!.profileUrl),
+                                    fit: BoxFit.fill
+                                )
+                            ),
+                            width: width * 0.4,
+                            height: width * 0.4,
+                          ) :
+                          Container(
+                            margin: EdgeInsets.only(top: height * 0.08),
+                            decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage("assets/image/default.png"),
+                                    fit: BoxFit.fill
+                                )
+                            ),
+                            width: width * 0.4,
+                            height: width * 0.4,
+                          );
                         }
                       },
                     ),
@@ -267,7 +280,7 @@ class _DoneListState extends State<DoneListPage> {
                                   width: width * 0.87,
                                   child: SwipeActionCell(
                                     key: ObjectKey(list[index]),
-                                    performsFirstActionWithFullSwipe: true,
+
                                     trailingActions: [
                                       SwipeAction(
                                         title: '삭제',
