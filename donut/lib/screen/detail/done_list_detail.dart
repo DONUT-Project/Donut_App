@@ -271,6 +271,7 @@ class _DoneListState extends State<DoneListPage> {
                             shrinkWrap: true,
                             itemCount: list.length,
                             itemBuilder: (context, index) {
+                              String title = list[index].title.length > 10 ? list[index].title.substring(0, 10) + '...' : list[index].title;
                               String content = list[index].content.length > 10 ? list[index].content.substring(0, 10) + '...' : list[index].content;
 
                               return Center(
@@ -403,7 +404,7 @@ class _DoneListState extends State<DoneListPage> {
                                                   children: [
                                                     Container(
                                                       child: Text(
-                                                        "제목 : ${list[index].title}",
+                                                        "제목 : $title",
                                                         style: const TextStyle(
                                                             fontWeight: FontWeight.w700,
                                                             fontSize: 18,
